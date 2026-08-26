@@ -1,0 +1,6 @@
+sim/*
+!sim/.gitkeep
+
+*.vcd
+*.fst
+*.log
