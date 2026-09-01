@@ -12,7 +12,7 @@ module vector_mac_controller_tb;
     logic [17:0] result;
     logic done;   
 
-    vector_mac_controller mac_control (
+    mac_controller mac_control (
         .clk(clk),
         .reset(reset),
         .start(start),
