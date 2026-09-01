@@ -10,6 +10,10 @@ This repository intentionally preserves the project's incremental development hi
 
 The goal is not to present this as a finished commercial accelerator. It is a transparent engineering record showing how I translate theory into working SystemVerilog, test assumptions, correct mistakes, and increase the design's complexity as my skills develop.
 
+## Development notebook
+
+My [phase 1-to-5 development summary](docs/development-notes-phases-1-to-5.md) connects each learning milestone to its RTL module, interface decisions, and self-checking testbench. The [original handwritten notes](docs/phase-1-to-5-development-notes.pdf) are also preserved as a record of how the design and verification plan developed.
+
 ## Highlights
 
 - Four parallel 8-bit ALU lanes supporting add, subtract, AND, and XOR
