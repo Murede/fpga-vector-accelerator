@@ -35,7 +35,7 @@ module controller_alu_tb;
         forever #5 clk = ~clk;
     end 
 
-
+ 
     initial begin 
 
         $dumpfile("sim/controller_alu.vcd");
