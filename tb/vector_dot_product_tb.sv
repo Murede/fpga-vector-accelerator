@@ -27,7 +27,7 @@ module vector_dot_product_tb;
         $dumpvars(0, vector_dot_product_tb);
 
         // -------------------------
-        // Test 1: Normal DOt-Product Operation
+        // Test 1: Normal dot-product operation
         // -------------------------
 
         a0 = 8'd2;

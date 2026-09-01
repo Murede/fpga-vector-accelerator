@@ -4,3 +4,25 @@ sim/*
 *.vcd
 *.fst
 *.log
+*.out
+*.vvp
+
+# FPGA tool outputs
+build/
+work/
+*.jou
+*.pb
+*.str
+*.wdb
+*.xpr
+*.runs/
+*.cache/
+*.gen/
+*.hw/
+*.ip_user_files/
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

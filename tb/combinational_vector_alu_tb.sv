@@ -140,7 +140,7 @@ module combinational_vector_alu_tb;
         if (result2 !== 8'b00000011)
             $error("Result2 Lane XOR Test failed expected 00000011, and got %b", result2);
         else 
-            $display("Result2 AND Test Passed");
+            $display("Result2 XOR Test Passed");
 
         if (result3 !== 8'b00001111)
             $error("Result3 Lane XOR Test failed expected 00001111, and got %b", result3);

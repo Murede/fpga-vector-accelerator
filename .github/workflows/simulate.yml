@@ -1,0 +1,50 @@
+name: SystemVerilog tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Icarus Verilog
+        run: sudo apt-get update && sudo apt-get install --yes iverilog
+
+      - name: Run self-checking simulations
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p sim
+
+          run_test() {
+            local top="$1"
+            shift
+            echo "::group::${top}"
+            iverilog -g2012 -Wall -s "${top}" -o "sim/${top}.vvp" "$@"
+            vvp "sim/${top}.vvp"
+            echo "::endgroup::"
+          }
+
+          run_test alu_tb \
+            rtl/alu.sv tb/alu_tb.sv
+          run_test combinational_vector_alu_tb \
+            rtl/alu.sv rtl/combinational_vector_alu.sv tb/combinational_vector_alu_tb.sv
+          run_test registered_alu_tb \
+            rtl/alu.sv rtl/registered_alu.sv tb/registered_alu_tb.sv
+          run_test controller_alu_tb \
+            rtl/alu.sv rtl/controller_alu.sv tb/controller_alu_tb.sv
+          run_test mac_unit_tb \
+            rtl/mac_unit.sv tb/mac_unit_tb.sv
+          run_test vector_dot_product_tb \
+            rtl/vector_dot_product.sv tb/vector_dot_product_tb.sv
