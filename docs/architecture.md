@@ -1,5 +1,7 @@
 # Architecture
 
+> This is a learn-as-I-go project. The architecture records both the currently verified design and the next concepts being explored; it does not claim to be a finished production accelerator.
+
 ## Objective
 
 The project explores two implementation styles for short unsigned vector operations:

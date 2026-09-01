@@ -2,7 +2,13 @@
 
 [![SystemVerilog tests](https://github.com/Murede/fpga-vector-accelerator/actions/workflows/simulate.yml/badge.svg)](https://github.com/Murede/fpga-vector-accelerator/actions/workflows/simulate.yml)
 
-A SystemVerilog learning project that develops the arithmetic datapath for a small FPGA vector accelerator. The design progresses from a scalar ALU to four parallel vector lanes, registered control, multiply-accumulate (MAC) hardware, and a four-element dot-product unit.
+A learn-as-I-go SystemVerilog project that documents my progression toward building a small FPGA vector accelerator. Each stage applies a newly learned digital-design concept, progressing from a scalar ALU to four parallel vector lanes, registered control, multiply-accumulate (MAC) hardware, and a four-element dot-product unit.
+
+## Learning approach
+
+This repository intentionally preserves the project's incremental development history. I am using it to learn RTL design, verification, and computer architecture by implementing one testable building block at a time. Completed modules are supported by self-checking testbenches, while unfinished ideas remain outside the published design until they are ready to verify.
+
+The goal is not to present this as a finished commercial accelerator. It is a transparent engineering record showing how I translate theory into working SystemVerilog, test assumptions, correct mistakes, and increase the design's complexity as my skills develop.
 
 ## Highlights
 
@@ -70,7 +76,7 @@ The GitHub Actions workflow runs the complete test suite. Testbenches also gener
 
 ## Project status
 
-This project is actively in development. The current milestone implements and verifies the arithmetic building blocks and parallel dot-product datapath. The next milestone is a controller that reuses one MAC unit across four vector elements, enabling an area/latency comparison against the parallel implementation.
+This learn-as-I-go project is actively in development. The current milestone implements and verifies the arithmetic building blocks and parallel dot-product datapath. The next milestone is a controller that reuses one MAC unit across four vector elements, enabling an area/latency comparison against the parallel implementation.
 
 Planned extensions:
 
