@@ -153,7 +153,8 @@ module mac_controller(
 
             default: begin 
             end 
-        endcase 
+        endcase
+    end 
 
 
     // Connecting the internal mac accumulator to the output result wire 
