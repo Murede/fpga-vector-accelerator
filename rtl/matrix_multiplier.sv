@@ -1,24 +1,30 @@
-module matrix_multiplier(
+module matrix_multiplier #(
+    parameter int DATA_WIDTH = 8,
+    parameter int VECTOR_LEN = 4,
+    parameter int NUM_ROWS = 4,
+    parameter int ACC_WIDTH = 
+        (2* DATA_WIDTH) + $clog2(VECTOR_LEN)
+) (
 
     input logic clk,
     
     input logic reset,
     input logic start,
 
-    input logic signed [7:0] a0 [3:0],
-    input logic signed [7:0] a1 [3:0],
-    input logic signed [7:0] a2 [3:0],
-    input logic signed [7:0] a3 [3:0],
+    input logic signed [DATA_WIDTH-1:0] a0 [3:0],
+    input logic signed [DATA_WIDTH-1:0] a1 [3:0],
+    input logic signed [DATA_WIDTH-1:0] a2 [3:0],
+    input logic signed [DATA_WIDTH-1:0] a3 [3:0],
 
-    input logic signed [7:0] x0,
-    input logic signed [7:0] x1,
-    input logic signed [7:0] x2,
-    input logic signed [7:0] x3,
+    input logic signed [DATA_WIDTH-1:0] x0,
+    input logic signed [DATA_WIDTH-1:0] x1,
+    input logic signed [DATA_WIDTH-1:0] x2,
+    input logic signed [DATA_WIDTH-1:0] x3,
 
-    output logic signed [17:0] y0,
-    output logic signed [17:0] y1,
-    output logic signed [17:0] y2,
-    output logic signed [17:0] y3,
+    output logic signed [ACC_WIDTH-1:0] y0,
+    output logic signed [ACC_WIDTH-1:0] y1,
+    output logic signed [ACC_WIDTH-1:0] y2,
+    output logic signed [ACC_WIDTH-1:0] y3,
 
     output logic done
 );
@@ -35,21 +41,22 @@ module matrix_multiplier(
     state_t current_state; 
     state_t next_state; 
 
+    // Parametrized Parameters 
+
+    localparam int VECTOR_INDEX_WIDTH = $clog2(VECTOR_LEN);
+    localparam int ROW_INDEX_WIDTH = $clog2(NUM_ROWS);
+
     // Selected MAC Operands
-    logic signed [7:0] selected_vector; 
-    logic signed [7:0] selected_matrix;
+    logic signed [DATA_WIDTH-1:0] selected_vector; 
+    logic signed [DATA_WIDTH-1:0] selected_matrix;
 
-    
-    // Horizontal Vector Traversal
-    logic [1:0] vector_index;
+    logic [VECTOR_INDEX_WIDTH-1:0] vector_index;
+    logic [ROW_INDEX_WIDTH-1:0] row_index;
 
-    // Vertical Vector Traversal
-    logic [1:0] row_index; 
+    logic signed [ACC_WIDTH-1:0] mac_accumulator;
 
     logic mac_enable;
     logic mac_reset;
-
-    logic signed [17:0] mac_accumulator;
 
     
     // State Register 
@@ -63,27 +70,27 @@ module matrix_multiplier(
     // Matrix Traveral Logic  
     always_ff @(posedge clk) begin 
         if (reset) begin 
-            vector_index <= 2'd0;
-            row_index <= 2'd0; 
+            vector_index <= '0;
+            row_index <= '0; 
         end 
         
         else if (current_state == IDLE && start) begin 
-            vector_index <= 2'd0;
-            row_index <= 2'd0; 
+            vector_index <= '0;
+            row_index <= '0; 
         end 
 
         else if (current_state == CLEAR) begin 
-            vector_index <= 2'd0; 
+            vector_index <= '0; 
         end 
 
         else if (current_state == MAC) begin
-                if (vector_index < 2'd3)
-                    vector_index <= vector_index + 2'd1;                
+                if (vector_index < VECTOR_LEN - 1)
+                    vector_index <= vector_index + 1'b1;                
         end
 
         else if (current_state == STORE) begin 
-            if (row_index < 3) 
-                row_index <= row_index + 2'd1;
+            if (row_index < NUM_ROWS- 1) 
+                row_index <= row_index + 1'b1;
         end 
     end
 
