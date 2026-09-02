@@ -55,7 +55,7 @@ module mac_controller(
             index <= 2'd0;
 
         else if (current_state == CLEAR) 
-            index <= 0;
+            index <= 2'd0;
 
         else if (current_state == MAC) begin 
             if(index < 2'd3)
