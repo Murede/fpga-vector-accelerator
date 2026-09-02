@@ -174,4 +174,54 @@ module matrix_multiplier(
     // Seperatley handle DONE to emulate a Moore-style Machine 
     assign done = (current_state == DONE);
 
+    // MAC Control Logic 
+    always_comb begin 
+
+        mac_reset = reset; 
+        mac_enable = 1'b0;
+        
+        case (current_state)
+
+            CLEAR: begin 
+                mac_reset = 1'b1;
+            end 
+
+            MAC:begin 
+                mac_enable = 1'b1;
+            end 
+
+            default: begin 
+            end
+        endcase 
+    end 
+
+    // Output Storage Logic 
+    always_ff @(posedge clk) begin  
+        if (reset) begin 
+            y0 <= 18'sd0;
+            y1 <= 18'sd0;
+            y2 <= 18'sd0;
+            y3 <= 18'sd0;
+        end 
+
+        else if (current_state == STORE)
+            case (row_index)
+
+                2'd0:
+                    y0 <= mac_accumulator;
+                2'd1:
+                    y1 <= mac_accumulator;
+                2'd2:
+                    y2 <= mac_accumulator;
+                2'd3:
+                    y3 <= mac_accumulator;
+            endcase
+        end 
+    end 
+    
+    // Done Assertion
+    assign done = (current_state == DONE);
+
+    
+
 endmodule 
