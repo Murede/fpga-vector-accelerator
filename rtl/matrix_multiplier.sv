@@ -20,7 +20,7 @@ module matrix_multiplier(
     output logic signed [17:0] y2,
     output logic signed [17:0] y3,
 
-    output logic done;
+    output logic done
 );
 
     // State definitions 
@@ -41,7 +41,7 @@ module matrix_multiplier(
 
     
     // Horizontal Vector Traversal
-    logic [1:0] element_index;
+    logic [1:0] vector_index;
 
     // Vertical Vector Traversal
     logic [1:0] row_index; 
@@ -49,7 +49,7 @@ module matrix_multiplier(
     logic mac_enable;
     logic mac_reset;
 
-    logic [17:0] signed mac_accumulator;
+    logic signed [17:0] mac_accumulator;
 
     
     // State Register 
@@ -67,7 +67,7 @@ module matrix_multiplier(
             row_index <= 2'd0; 
         end 
         
-        else if (current_state == IDLE && start = 1'b1) begin 
+        else if (current_state == IDLE && start) begin 
             vector_index <= 2'd0;
             row_index <= 2'd0; 
         end 
@@ -150,7 +150,7 @@ module matrix_multiplier(
 
             MAC: begin
 
-                if (vector_index < 3) 
+                if (vector_index < 2'd3) 
                     next_state = MAC;
                 else
                     next_state = STORE;
@@ -158,12 +158,16 @@ module matrix_multiplier(
 
             STORE: begin 
 
-                if (row_index < 3)
+                if (row_index < 2'd3)
                     next_state = CLEAR;
                 else 
                     next_state = DONE;
             end 
-            
+
+            DONE: begin 
+                next_state = IDLE;
+            end 
+
             default: begin
                 next_state = IDLE;
             end
@@ -201,7 +205,7 @@ module matrix_multiplier(
             y3 <= 18'sd0;
         end 
 
-        else if (current_state == STORE)
+        else if (current_state == STORE) begin 
             case (row_index)
 
                 2'd0:
