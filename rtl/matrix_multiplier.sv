@@ -11,20 +11,14 @@ module matrix_multiplier #(
     input logic reset,
     input logic start,
 
-    input logic signed [DATA_WIDTH-1:0] a0 [3:0],
-    input logic signed [DATA_WIDTH-1:0] a1 [3:0],
-    input logic signed [DATA_WIDTH-1:0] a2 [3:0],
-    input logic signed [DATA_WIDTH-1:0] a3 [3:0],
+    input logic signed [DATA_WIDTH-1:0] a 
+        [NUM_ROWS-1:0][VECTOR_LEN-1:0],
 
-    input logic signed [DATA_WIDTH-1:0] x0,
-    input logic signed [DATA_WIDTH-1:0] x1,
-    input logic signed [DATA_WIDTH-1:0] x2,
-    input logic signed [DATA_WIDTH-1:0] x3,
+    input logic signed [DATA_WIDTH-1:0] x 
+        [VECTOR_LEN - 1:0],
 
-    output logic signed [ACC_WIDTH-1:0] y0,
-    output logic signed [ACC_WIDTH-1:0] y1,
-    output logic signed [ACC_WIDTH-1:0] y2,
-    output logic signed [ACC_WIDTH-1:0] y3,
+    output logic signed [ACC_WIDTH-1:0] y 
+        [NUM_ROWS-1:0],
 
     output logic done
 );
@@ -42,9 +36,11 @@ module matrix_multiplier #(
     state_t next_state; 
 
     // Parametrized Parameters 
+    localparam int VECTOR_INDEX_WIDTH =
+        (VECTOR_LEN <= 1) ? 1 : $clog2(VECTOR_LEN);
 
-    localparam int VECTOR_INDEX_WIDTH = $clog2(VECTOR_LEN);
-    localparam int ROW_INDEX_WIDTH = $clog2(NUM_ROWS);
+    localparam int ROW_INDEX_WIDTH =
+        (NUM_ROWS <= 1) ? 1 : $clog2(NUM_ROWS);
 
     // Selected MAC Operands
     logic signed [DATA_WIDTH-1:0] selected_vector; 
@@ -99,35 +95,20 @@ module matrix_multiplier #(
     // Vector Selector 
 
     always_comb begin 
-
-        selected_vector = 8'sd0;
-
-        case (vector_index)
-            2'd0: selected_vector = x0;
-            2'd1: selected_vector = x1;
-            2'd2: selected_vector = x2;
-            2'd3: selected_vector = x3;
-            default: selected_vector = 8'sd0;
-        endcase 
+        selected_vector = x[vector_index];
     end
     
     // Row Selector 
 
     always_comb begin 
-    
-        selected_matrix = 8'sd0;
-
-        case (row_index)
-            2'd0: selected_matrix =  a0[vector_index];
-            2'd1: selected_matrix =  a1[vector_index];
-            2'd2: selected_matrix =  a2[vector_index];
-            2'd3: selected_matrix =  a3[vector_index];
-            default: selected_matrix = 8'sd0;
-        endcase 
+        selected_matrix = a[row_index][vector_index]; 
     end 
 
     // MAC Instatiation 
-    signed_mac_unit smac_unit(
+    signed_mac_unit #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .ACC_WIDTH(ACC_WIDTH)
+        ) smac_unit (
         .clk(clk),
         .reset(mac_reset),
         .en(mac_enable),
@@ -157,7 +138,7 @@ module matrix_multiplier #(
 
             MAC: begin
 
-                if (vector_index < 2'd3) 
+                if (vector_index < VECTOR_LEN - 1) 
                     next_state = MAC;
                 else
                     next_state = STORE;
@@ -165,7 +146,7 @@ module matrix_multiplier #(
 
             STORE: begin 
 
-                if (row_index < 2'd3)
+                if (row_index < NUM_ROWS - 1)
                     next_state = CLEAR;
                 else 
                     next_state = DONE;
@@ -204,26 +185,18 @@ module matrix_multiplier #(
     end 
 
     // Output Storage Logic 
+
+    integer i;
+
     always_ff @(posedge clk) begin  
         if (reset) begin 
-            y0 <= 18'sd0;
-            y1 <= 18'sd0;
-            y2 <= 18'sd0;
-            y3 <= 18'sd0;
+            for (i = 0; i < NUM_ROWS; i = i + 1) begin 
+                y[i] <= '0;
+            end 
         end 
 
         else if (current_state == STORE) begin 
-            case (row_index)
-
-                2'd0:
-                    y0 <= mac_accumulator;
-                2'd1:
-                    y1 <= mac_accumulator;
-                2'd2:
-                    y2 <= mac_accumulator;
-                2'd3:
-                    y3 <= mac_accumulator;
-            endcase
+                y[row_index] <= mac_accumulator;
         end 
     end 
     
