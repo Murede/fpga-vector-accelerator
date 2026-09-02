@@ -170,10 +170,7 @@ module matrix_multiplier(
 
         endcase
     end 
-
-    // Seperatley handle DONE to emulate a Moore-style Machine 
-    assign done = (current_state == DONE);
-
+    
     // MAC Control Logic 
     always_comb begin 
 
@@ -221,7 +218,4 @@ module matrix_multiplier(
     
     // Done Assertion
     assign done = (current_state == DONE);
-
-    
-
 endmodule 
