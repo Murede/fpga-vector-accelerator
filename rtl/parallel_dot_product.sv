@@ -45,21 +45,45 @@ module parallel_dot_product #(
     end
     
     // Accumilation Phase 
-    always_comb begin 
-        for(i = 0; i < VECTOR_LEN; i = i + 1) begin 
-            tree[0][i] = extended_product[i];
-        end
+   integer nodes_per_level;
 
-        for(i = 1; i <= TREE_LEVELS; i = i + 1) begin 
-            for(j=0; j<VECTOR_LEN; j = j + 2) begin 
-                if(j+1 < VECTOR_LEN) begin 
-                    tree[i][j/2] = tree[i-1][j] + tree[i-1][j+1];
-                end
-                else begin 
-                    tree[i][j/2] = tree[i-1][j];
-                end
-            end
+   always_comb begin 
+        // Default all tree entries to zero
+        for (i=0; i <= TREE_LEVELS; i = i +1) begin 
+            for(j =0; j < VECTOR_LEN; j = j+1) begin
+                tree[i][j] = '0;
+            end 
         end 
-    end
+
+        // Level 0: Sign-extended products 
+        for (i =0; i < VECTOR_LEN; i = i + 1) begin 
+            tree[0][i] = extended_product[i];
+        end 
+
+        nodes_per_level = VECTOR_LEN;
+
+        // Build each subsequeent tree level 
+        for(i = 1; i <= TREE_LEVELS; i = i + 1) begin 
+
+            for (j = 0; j < nodes_per_level; j = j + 2) begin 
+                if (j + 1 < nodes_per_level) begin 
+                    tree[i][j/2] =
+                        tree[i-1][j] + tree[i-1][j+1];
+            end
+
+                else begin 
+                    tree[i][j/2] = 
+                        tree[i-1][j];
+                end 
+            end 
+
+            // Number of outputs produced by this level 
+            nodes_per_level = (nodes_per_level + 1) /2;
+        end 
+
+        result = tree[TREE_LEVELS][0];
+
+    end 
+
 
 endmodule
