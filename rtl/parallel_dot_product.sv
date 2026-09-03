@@ -18,7 +18,7 @@ module parallel_dot_product #(
     localparam int PRODUCT_WIDTH = 2 * DATA_WIDTH;
 
     localparam int TREE_LEVELS = 
-        (VECTOR_LEN <=1)? 1 : $clog2(VECTOR_LEN);
+        (VECTOR_LEN <=1)? 0 : $clog2(VECTOR_LEN);
 
     logic signed [PRODUCT_WIDTH-1:0] product [VECTOR_LEN-1:0];
     
@@ -27,53 +27,46 @@ module parallel_dot_product #(
 
     logic signed [ACC_WIDTH-1:0]
         extended_product [VECTOR_LEN-1:0];
+    
+    integer nodes_per_level;
 
     // Mutliplication & Sign Extension Phase
-
-    integer i;
-    integer j;
-
     always_comb begin
-        for(i = 0; i < VECTOR_LEN; i = i + 1) begin 
-            product[i] = a[i] * b[i];
+        for(int k = 0; k < VECTOR_LEN; k = k + 1) begin 
+            product[k] = a[k] * b[k];
 
-        extended_product[i] =
+        extended_product[k] =
             {{(ACC_WIDTH-PRODUCT_WIDTH)
-              {product[i][PRODUCT_WIDTH-1]}},
-              product[i]};
+              {product[k][PRODUCT_WIDTH-1]}},
+              product[k]};
         end
-    end
-    
-    // Accumilation Phase 
-   integer nodes_per_level;
 
-   always_comb begin 
         // Default all tree entries to zero
-        for (i=0; i <= TREE_LEVELS; i = i +1) begin 
-            for(j =0; j < VECTOR_LEN; j = j+1) begin
-                tree[i][j] = '0;
+        for (int level = 0; level <= TREE_LEVELS; level = level +1) begin 
+            for(int node =0; node < VECTOR_LEN; node = node + 1) begin
+                tree[level][node] = '0;
             end 
         end 
 
         // Level 0: Sign-extended products 
-        for (i =0; i < VECTOR_LEN; i = i + 1) begin 
-            tree[0][i] = extended_product[i];
+        for (int node =0; node < VECTOR_LEN; node = node + 1) begin 
+            tree[0][node] = extended_product[node];
         end 
 
         nodes_per_level = VECTOR_LEN;
 
         // Build each subsequeent tree level 
-        for(i = 1; i <= TREE_LEVELS; i = i + 1) begin 
+        for(int level = 1; level <= TREE_LEVELS; level = level + 1) begin 
 
-            for (j = 0; j < nodes_per_level; j = j + 2) begin 
-                if (j + 1 < nodes_per_level) begin 
-                    tree[i][j/2] =
-                        tree[i-1][j] + tree[i-1][j+1];
+            for (int node = 0; node < nodes_per_level; node = node + 2) begin 
+                if (node + 1 < nodes_per_level) begin 
+                    tree[level][node/2] =
+                        tree[level-1][node] + tree[level-1][node+1];
             end
 
                 else begin 
-                    tree[i][j/2] = 
-                        tree[i-1][j];
+                    tree[level][node/2] = 
+                        tree[level-1][node];
                 end 
             end 
 
