@@ -48,3 +48,7 @@ jobs:
             rtl/mac_unit.sv tb/mac_unit_tb.sv
           run_test vector_dot_product_tb \
             rtl/vector_dot_product.sv tb/vector_dot_product_tb.sv
+          run_test vector_mac_controller_tb \
+            rtl/mac_unit.sv rtl/vector_mac_controller.sv tb/vector_mac_controller_tb.sv
+          run_test signed_mac_unit_tb \
+            rtl/signed_mac_unit.sv tb/signed_mac_unit_tb.sv

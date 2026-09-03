@@ -2,7 +2,7 @@
 
 [![SystemVerilog tests](https://github.com/Murede/fpga-vector-accelerator/actions/workflows/simulate.yml/badge.svg)](https://github.com/Murede/fpga-vector-accelerator/actions/workflows/simulate.yml)
 
-A learn-as-I-go SystemVerilog project that documents my progression toward building a small FPGA vector accelerator. Each stage applies a newly learned digital-design concept, progressing from a scalar ALU to four parallel vector lanes, registered control, multiply-accumulate (MAC) hardware, and a four-element dot-product unit.
+A learn-as-I-go SystemVerilog project that documents my progression toward building a small FPGA vector accelerator. Each stage applies a newly learned digital-design concept, progressing from a scalar ALU to parallel vector lanes, registered control, multiply-accumulate (MAC) hardware, signed arithmetic, and matrix-vector processing.
 
 ## Learning approach
 
@@ -20,6 +20,8 @@ My [phase 1-to-5 development summary](docs/development-notes-phases-1-to-5.md) c
 - Registered request/completion interfaces with one-cycle `done` signaling
 - Unsigned 8-bit multiply-accumulate unit with an 18-bit accumulator
 - Parallel four-element unsigned dot product with full-width accumulation
+- Iterative four-element vector MAC controller that reuses one multiplier
+- Signed MAC datapath and parameterized signed matrix-vector controller
 - Self-checking SystemVerilog testbenches covering normal, overflow, hold, reset, and boundary behavior
 - Automated simulation on every push and pull request with Icarus Verilog
 
@@ -61,6 +63,11 @@ The maximum unsigned dot-product result is `4 x 255 x 255 = 260,100`, which fits
 | `controller_alu` | FSM-controlled ALU transaction | Self-checking testbench |
 | `mac_unit` | Sequential unsigned multiply-accumulate | Self-checking testbench |
 | `vector_dot_product` | Four-element parallel dot product | Self-checking testbench |
+| `mac_controller` | Iterative four-element vector MAC | Self-checking testbench |
+| `signed_mac_unit` | Parameterized signed multiply-accumulate | Self-checking testbench |
+| `matrix_multiplier` | Parameterized signed matrix-vector controller | Testbench implemented; unresolved `X` outputs under current Icarus simulation |
+| `parallel_dot_product` | Parameterized signed parallel reduction tree | RTL in active development; dedicated testbench pending |
+| `parallel_matrix_multiplier` | Row-controlled parallel matrix-vector wrapper | Interface and FSM work in progress; datapath incomplete |
 
 ## Run the simulations
 
@@ -80,13 +87,16 @@ The GitHub Actions workflow runs the complete test suite. Testbenches also gener
 
 ## Project status
 
-This learn-as-I-go project is actively in development. The current milestone implements and verifies the arithmetic building blocks and parallel dot-product datapath. The next milestone is a controller that reuses one MAC unit across four vector elements, enabling an area/latency comparison against the parallel implementation.
+This learn-as-I-go project is actively in development. Eight module-level simulations currently pass locally: the scalar ALU, vector ALU, registered ALU, FSM-controlled ALU, unsigned MAC, fixed four-element dot product, iterative vector MAC controller, and signed MAC.
+
+The signed matrix-vector controller and its testbench are implemented, but a fresh Icarus Verilog run on September 3, 2026 exposed unresolved `X` values at its output. It therefore remains a debugging milestone rather than a verified result. The current local work also develops an arbitrary-length signed parallel dot product and the surrounding parallel matrix-vector controller.
 
 Planned extensions:
 
-- Complete and verify the iterative vector MAC controller
-- Compare parallel and iterative architectures by latency and synthesized resource use
-- Parameterize element width and vector length
+- Resolve and verify the signed matrix-vector controller output issue
+- Add dedicated signed and non-power-of-two tests for `parallel_dot_product`
+- Complete the parallel matrix-vector controller
+- Compare iterative and parallel matrix-vector architectures by latency and synthesized resource use
 - Add synthesis results for a specific FPGA target
 - Integrate on-board I/O and hardware validation
 

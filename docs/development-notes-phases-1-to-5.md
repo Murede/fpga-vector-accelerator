@@ -95,8 +95,8 @@ That value fits in 18 bits. The dot-product testbench checks a normal example (`
 
 The first five phases use self-checking testbenches rather than relying only on waveform inspection. Each testbench supplies known inputs, calculates or defines the expected result, and reports a failure when the design output or transaction timing differs.
 
-GitHub Actions currently runs the six phase 1-to-5 simulations with Icarus Verilog on each push and pull request. VCD files can also be generated locally for timing inspection in GTKWave.
+GitHub Actions runs the six phase 1-to-5 simulations plus the iterative vector-MAC and signed-MAC testbenches with Icarus Verilog on each push and pull request. VCD files can also be generated locally for timing inspection in GTKWave.
 
 ## Continuing development
 
-The repository also contains later work exploring an iterative vector-MAC controller and signed arithmetic. Those modules extend the learning path beyond the scope of the attached phase 1-to-5 notebook and should be treated as active development until their tests are included in the automated verification workflow.
+The repository now verifies the later iterative vector-MAC controller and signed MAC in the automated workflow. The parameterized signed matrix-vector controller, arbitrary-length parallel dot product, and parallel matrix-vector wrapper extend the learning path beyond this notebook. Their exact verification state is tracked in the root README rather than being folded into the completed Phase 1-5 record.

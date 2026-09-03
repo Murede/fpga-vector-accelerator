@@ -4,18 +4,18 @@
 
 ## Objective
 
-The project explores two implementation styles for short unsigned vector operations:
+The project explores two implementation styles for short vector and matrix-vector operations:
 
 1. A parallel datapath that computes all lanes at once.
 2. An iterative datapath that trades latency for lower resource use by reusing arithmetic hardware.
 
-The parallel building blocks are implemented. The iterative vector MAC controller is the next development milestone.
+The fixed four-element parallel datapath and iterative vector MAC controller are implemented. Signed MAC and matrix-vector work extend the design beyond the unsigned Phase 1-5 foundation.
 
 ## Data representation
 
 - Vector length: 4 elements
 - Element width: 8 bits
-- Arithmetic interpretation: unsigned
+- Arithmetic interpretation: unsigned in the Phase 1-5 datapaths; signed in the newer parameterized MAC and matrix-vector modules
 - ALU result width: 8 bits; addition overflow and subtraction underflow wrap modulo 256
 - Product width: 16 bits
 - Dot-product and accumulator width: 18 bits
@@ -61,6 +61,14 @@ Explicit zero extension preserves the required width at every addition stage.
 
 `mac_unit` adds one unsigned product to an 18-bit accumulator per enabled clock cycle. Synchronous reset clears the accumulator, while a deasserted enable holds its previous value.
 
+`mac_controller` reuses that unit across four operand pairs. This establishes the iterative side of the planned area-versus-latency comparison. `signed_mac_unit` then generalizes the arithmetic to signed, parameterized operands and accumulation.
+
+### Matrix-vector development
+
+`matrix_multiplier` traverses a parameterized signed matrix one row and one vector element at a time, using `signed_mac_unit` as its arithmetic resource. Its RTL and self-checking testbench are present, but the current Icarus run produces unresolved output values; it is not yet counted as verified.
+
+`parallel_dot_product` develops an arbitrary-length signed reduction tree, including odd vector lengths. `parallel_matrix_multiplier` is the active wrapper milestone and is not yet a complete datapath.
+
 ## Interface timing
 
 All sequential modules use a synchronous active-high reset.
@@ -83,6 +91,8 @@ Each implemented design block has a self-checking testbench. The suite checks:
 - Registered transaction timing and one-cycle completion pulses
 - Reset and enable-hold behavior in the MAC
 - Typical, zero, mixed large-value, and maximum-value dot products
+- Iterative vector-MAC sequencing and completion signaling
+- Positive, negative, hold, and reset behavior in the signed MAC
 
 GitHub Actions compiles each test independently with SystemVerilog-2012 enabled and runs it with `vvp`. VCD artifacts are generated locally for waveform inspection and excluded from version control.
 
@@ -90,7 +100,9 @@ GitHub Actions compiles each test independently with SystemVerilog-2012 enabled 
 
 - The design has not yet been synthesized for a named FPGA target.
 - Timing closure, maximum clock frequency, utilization, and power have not been measured.
-- Inputs are unsigned and fixed at four 8-bit elements.
+- The original ALU and dot-product modules are unsigned and fixed at four 8-bit elements; parameterized signed replacements are still being integrated.
+- The signed matrix-vector testbench currently exposes unresolved output values under Icarus Verilog.
+- The parallel matrix-vector controller is incomplete.
 - There is not yet a top-level FPGA board interface.
 
 These are deliberately stated as future validation work rather than inferred performance claims.
