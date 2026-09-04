@@ -12,7 +12,7 @@ module tb_topmodule;
     logic clk;
     logic reset;
     logic start;
-    logic done;
+    wire done;
 
     // Matrix and Vector Inputs
     logic signed [DATA_WIDTH-1:0] a
@@ -22,7 +22,7 @@ module tb_topmodule;
         [VECTOR_LEN-1:0];
 
     // Output Vector
-    logic signed [ACC_WIDTH-1:0] y
+    wire signed [ACC_WIDTH-1:0] y
         [NUM_ROWS-1:0];
 
     // DUT Instantiation
@@ -43,6 +43,34 @@ module tb_topmodule;
 
     // Clock Generation
     always #5 clk = ~clk;
+
+    // Debug Monitor 
+    initial begin
+        $monitor(
+            "t=%0t | child=%0d,%0d,%0d,%0d | internal=%0d,%0d,%0d,%0d | dut_y=%0d,%0d,%0d,%0d | tb_y=%0d,%0d,%0d,%0d",
+            $time,
+
+            dut.parallel_mm_unit.y_flat[0*ACC_WIDTH +: ACC_WIDTH],
+            dut.parallel_mm_unit.y_flat[1*ACC_WIDTH +: ACC_WIDTH],
+            dut.parallel_mm_unit.y_flat[2*ACC_WIDTH +: ACC_WIDTH],
+            dut.parallel_mm_unit.y_flat[3*ACC_WIDTH +: ACC_WIDTH],
+
+            dut.y_internal_flat[0],
+            dut.y_internal_flat[1],
+            dut.y_internal_flat[2],
+            dut.y_internal_flat[3],
+
+            dut.y[0],
+            dut.y[1],
+            dut.y[2],
+            dut.y[3],
+
+            y[0],
+            y[1],
+            y[2],
+            y[3]
+        );
+    end
 
     initial begin
 

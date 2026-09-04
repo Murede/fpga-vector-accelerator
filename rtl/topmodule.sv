@@ -20,12 +20,14 @@ module topmodule #(
         [VECTOR_LEN-1:0],
 
     // Data Output 
-    output logic signed [ACC_WIDTH-1:0] y
+    output wire signed [ACC_WIDTH-1:0] y
         [NUM_ROWS-1:0],
     
     // Control Output 
     output logic done
 );
+    // Internal output Register
+    logic signed [(ACC_WIDTH*NUM_ROWS)-1:0] y_internal_flat;
 
     // Parallel Matrix Multiplier Instatiation 
 
@@ -41,6 +43,15 @@ module topmodule #(
         .done(done),
         .a(a),
         .x(x),
-        .y(y)
+        .y_flat(y_internal_flat)
     );
+
+    genvar i;
+
+    generate
+        for (i = 0; i < NUM_ROWS; i = i + 1) begin : output_connections
+            assign y[i] = y_internal_flat[i*ACC_WIDTH +: ACC_WIDTH];
+        end
+    endgenerate
+
 endmodule
