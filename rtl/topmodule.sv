@@ -29,7 +29,7 @@ module topmodule #(
 
     // Parallel Matrix Multiplier Instatiation 
 
-    parallel_matrix_multiplier # (
+    parallel_matrix_multiplier #(
         .DATA_WIDTH(DATA_WIDTH),
         .VECTOR_LEN(VECTOR_LEN),
         .NUM_ROWS(NUM_ROWS),
@@ -41,6 +41,6 @@ module topmodule #(
         .done(done),
         .a(a),
         .x(x),
-        .y(y),
+        .y(y)
     );
 endmodule
